@@ -4,29 +4,15 @@ import (
 	"fmt"
 	"log"
 	"time"
-
 	"tinygo.org/x/bluetooth"
 )
 
+// BLE 어댑터 선언
 var adapter = bluetooth.DefaultAdapter
 
-// 16비트나 32비트 UUID를 128비트로 변환하는 함수
+// UUID를 처리하여 올바른 형식으로 출력하는 함수 (엔디안 변환 제거)
 func formatUUID(uuid bluetooth.UUID) string {
-	uuidBytes := uuid.Bytes() // UUID를 바이트 배열로 변환
-
-	// 128비트 UUID로 변환
-	if len(uuidBytes) == 16 {
-		return fmt.Sprintf("%08x-%04x-%04x-%04x-%012x", uuidBytes[0:4], uuidBytes[4:6], uuidBytes[6:8], uuidBytes[8:10], uuidBytes[10:])
-	}
-	// 16비트 UUID를 128비트로 변환
-	if len(uuidBytes) == 2 {
-		return fmt.Sprintf("0000%04x-0000-1000-8000-00805f9b34fb", uuidBytes[0:2])
-	}
-	// 32비트 UUID를 128비트로 변환
-	if len(uuidBytes) == 4 {
-		return fmt.Sprintf("%08x-0000-1000-8000-00805f9b34fb", uuidBytes[0:4])
-	}
-	return uuid.String()
+	return uuid.String()  // UUID를 그대로 출력
 }
 
 func main() {
@@ -57,7 +43,7 @@ func main() {
 			}
 			defer device.Disconnect()
 
-			// 서비스 UUID 출력 (128비트로 변환 후 출력)
+			// 서비스 UUID 출력 (엔디안 변환 제거 후 그대로 출력)
 			services, err := device.DiscoverServices(nil)
 			if err != nil {
 				log.Printf("Failed to discover services: %v", err)
@@ -66,7 +52,7 @@ func main() {
 
 			fmt.Println("Service UUIDs for the device:")
 			for _, service := range services {
-				// UUID를 128비트로 변환하여 출력
+				// UUID를 그대로 출력
 				fmt.Printf("Service UUID: %v\n", formatUUID(service.UUID()))
 			}
 		})
