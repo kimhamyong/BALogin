@@ -43,17 +43,20 @@ func main() {
 			}
 			defer device.Disconnect()
 
-			// 서비스 UUID 출력 (엔디안 변환 제거 후 그대로 출력)
+			// 서비스 UUID 출력 (필터링 후 사용자 정의 서비스 UUID만 출력)
 			services, err := device.DiscoverServices(nil)
 			if err != nil {
 				log.Printf("Failed to discover services: %v", err)
 				return
 			}
 
-			fmt.Println("Service UUIDs for the device:")
+			fmt.Println("Custom Service UUIDs for the device:")
 			for _, service := range services {
-				// UUID를 그대로 출력
-				fmt.Printf("Service UUID: %v\n", formatUUID(service.UUID()))
+				uuid := formatUUID(service.UUID())
+				if uuid != "00001801-0000-1000-8000-00805f9b34fb" {
+					// 사용자 정의 서비스 UUID만 출력
+					fmt.Printf("Service UUID: %v\n\n", uuid)
+				}
 			}
 		})
 		must("start scan", err)
@@ -66,6 +69,7 @@ func main() {
 		time.Sleep(10 * time.Second)
 	}
 }
+
 
 // 에러 핸들링 헬퍼 함수
 func must(action string, err error) {
